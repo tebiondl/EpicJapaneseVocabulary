@@ -1,0 +1,187 @@
+#:import ColorPicker kivy.uix.colorpicker.ColorPicker
+
+<TagManagementScreen>:
+    canvas.before:
+        Color:
+            rgba: background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+
+        Label:
+            text: 'Tag Management'
+            font_size: '28sp'
+            size_hint_y: None
+            height: '50dp'
+            color: accent_color
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '50dp'
+            spacing: '10dp'
+
+            CustomTextInput:
+                id: search_input
+                hint_text: 'Search tags...'
+                on_text: root.search_tags(self.text)
+
+            CustomButton:
+                text: 'Search'
+                size_hint_x: None
+                width: '100dp'
+                on_press: root.search_tags(search_input.text)
+
+        RecycleView:
+            id: rv_tags
+            viewclass: 'TagButton'
+            RecycleBoxLayout:
+                default_size: None, dp(60)
+                default_size_hint: 1, None
+                size_hint_y: None
+                height: self.minimum_height
+                orientation: 'vertical'
+                spacing: '10dp'
+
+        CustomButton:
+            text: '+ Add New Tag'
+            size_hint_y: None
+            height: '50dp'
+            on_press: root.show_tag_creation_popup()
+
+        NavBar:
+
+<TagButton@BoxLayout>:
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: '60dp'
+    spacing: '10dp'
+    tag_id: ''
+    text: ''
+    color: [1, 1, 1, 1]
+
+    CustomButtonList:
+        text: root.text
+        background_color: root.color
+        size_hint_x: 0.8
+        on_press: app.root.get_screen('tag_management').edit_tag(root.tag_id)
+
+    CustomButton:
+        text: 'Delete'
+        size_hint_x: 0.2
+        background_color: utils.get_color_from_hex('#c0392b')
+        on_press: app.root.get_screen('tag_management').delete_tag(root.tag_id)
+
+<TagCreationPopup>:
+    title: 'Create New Tag'
+    size_hint: 0.9, 0.6
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+
+        CustomTextInput:
+            id: input_tag_name
+            hint_text: 'Enter tag name'
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '50dp'
+            spacing: '10dp'
+
+            CustomButton:
+                text: 'Choose Color'
+                size_hint_x: 0.7
+                on_press: root.show_color_picker()
+
+            Button:
+                id: color_preview
+                size_hint_x: 0.3
+                background_color: 1, 1, 1, 1
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '50dp'
+            spacing: '10dp'
+
+            CustomButton:
+                text: 'Cancel'
+                on_press: root.dismiss()
+
+            CustomButton:
+                text: 'Add Tag'
+                on_press: root.add_tag()
+
+<TagEditPopup>:
+    title: 'Edit Tag'
+    size_hint: 0.9, 0.6
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+
+        Label:
+            text: 'Tag Name:'
+            color: accent_color
+            font_size: '18sp'
+            size_hint_y: None
+            height: '30dp'
+        
+        CustomTextInput:
+            id: name_input
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '50dp'
+            spacing: '10dp'
+
+            CustomButton:
+                text: 'Choose Color'
+                size_hint_x: 0.7
+                on_press: root.show_color_picker()
+
+            Button:
+                id: color_preview
+                size_hint_x: 0.3
+                background_color: 1, 1, 1, 1
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '50dp'
+            spacing: '10dp'
+
+            CustomButton:
+                text: 'Cancel'
+                on_press: root.dismiss()
+
+            CustomButton:
+                text: 'Confirm'
+                on_press: root.confirm_edit_tag()
+
+<ColorPickerPopup>:
+    title: 'Choose Color'
+    size_hint: 0.9, 0.9
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        ColorPicker:
+            id: color_picker
+        BoxLayout:
+            size_hint_y: None
+            height: '50dp'
+            CustomButton:
+                text: 'Cancel'
+                on_press: root.dismiss()
+            CustomButton:
+                text: 'Select'
+                on_press: root.select_color()

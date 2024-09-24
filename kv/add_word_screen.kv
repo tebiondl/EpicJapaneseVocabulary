@@ -1,0 +1,49 @@
+<AddWordScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '10dp'
+        padding: '10dp'
+
+        ScrollView:
+            BoxLayout:
+                orientation: 'vertical'
+                spacing: '10dp'
+                size_hint_y: None
+                height: self.minimum_height
+
+                Label:
+                    text: 'Add New Word'
+                    font_size: '24sp'
+                    size_hint_y: None
+                    height: '40dp'
+
+                CustomTextInput:
+                    id: input_word
+                    hint_text: 'Enter word'
+
+                CustomTextInput:
+                    id: input_romaji
+                    hint_text: 'Enter romaji'
+
+                CustomTextInputJapanese:
+                    id: input_hiragana_katakana
+                    hint_text: 'Enter hiragana/katakana'
+
+                CustomTextInputJapanese:
+                    id: input_kanji
+                    hint_text: 'Enter kanji (optional)'
+
+                CustomButton:
+                    text: 'Select Tags'
+                    on_press: root.show_tag_popup()
+
+                BoxLayout:
+                    spacing: '20dp'
+                    size_hint_y: None
+                    height: '50dp'
+                    CustomButton:
+                        text: 'Save Word'
+                        on_press: root.save_word()
+                    CustomButton:
+                        text: 'Back'
+                        on_press: app.root.current = 'word_list'

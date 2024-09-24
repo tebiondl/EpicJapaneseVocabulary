@@ -1,0 +1,114 @@
+#:import utils kivy.utils
+#:set background_color (0.05, 0.05, 0.05, 1)  # Almost black
+#:set text_color (0.95, 0.95, 0.95, 1)  # Soft white
+#:set accent_color (0.1, 0.3, 0.9, 1)  # Bright blue
+#:set element_list_color (0.1, 0.5, 0.9, 1)  # Blue
+#:set secondary_color (0.15, 0.15, 0.15, 1)  # Dark gray
+#:set input_text_color (1, 1, 1, 1)  # Pure white for input text
+#:set hint_text_color (0.4, 0.4, 0.4, 1) # Medium gray for hints
+#:set learnt_color utils.get_color_from_hex('#27ae60')  # Green for learned words
+#:set nav_bar_color (0.05, 0.2, 0.6, 1)  # Darker blue for navigation bar
+#:set nav_bar_active_color (0.03, 0.12, 0.36, 1)  # Even darker blue for active nav button
+
+<CustomButton@Button>:
+    background_color: (0, 0, 0, 0)
+    background_normal: ''
+    canvas.before:
+        Color:
+            rgba: accent_color if self.state == 'normal' else utils.get_color_from_hex('#2980b9')
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [10,]
+    color: text_color
+    size_hint_y: None
+    height: '50dp'
+    font_size: '18sp'
+    bold: True
+
+<CustomButtonPretty@Button>:
+    background_color: (0, 0, 0, 0)
+    background_normal: ''
+    canvas.before:
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [10,]
+    color: text_color
+    size_hint_y: None
+    bold: True
+
+<CustomButtonList@Button>:
+    background_color: (0, 0, 0, 0)
+    background_normal: ''
+    canvas.before:
+        Color:
+            rgba: learnt_color if self.is_learned else (element_list_color if self.state == 'normal' else utils.get_color_from_hex('#2980b9'))
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [10,]
+    color: text_color
+    size_hint_y: None
+    height: '50dp'
+    font_size: '18sp'
+    bold: True
+    font_name: 'fonts/static/NotoSansJP-Medium.ttf'  # Supports Japanese
+    is_learned: False
+
+<CustomTextInput@TextInput>:
+    background_color: secondary_color
+    foreground_color: accent_color
+    hint_text_color: hint_text_color
+    cursor_color: accent_color
+    font_size: '18sp'
+    padding: '15dp'
+    multiline: False
+    size_hint_y: None
+    height: '70dp'
+    input_type: 'text'
+    write_tab: False
+    font_name: 'fonts/static/NotoSansJP-Medium.ttf'  # Supports Japanese
+
+<CustomTextInputJapanese@TextInput>:
+    background_color: secondary_color
+    foreground_color: accent_color
+    hint_text_color: hint_text_color
+    cursor_color: accent_color
+    font_size: '20sp'
+    padding: '15dp'
+    multiline: True
+    size_hint_y: None
+    height: '130dp'  # Increased height to accommodate multiple lines
+    input_type: 'text'
+    write_tab: False
+    font_name: 'fonts/static/NotoSansJP-Medium.ttf'  # Supports Japanese
+
+<NavBarButton@Button>:
+    background_color: nav_bar_active_color if self.state == 'down' else nav_bar_color
+    background_normal: ''
+    color: text_color
+    size_hint_y: None
+    height: '50dp'
+    font_size: '18sp'
+    bold: True
+
+<NavBar@BoxLayout>:
+    size_hint_y: None
+    height: '50dp'
+    spacing: 0
+    NavBarButton:
+        text: 'Word List'
+        on_press: 
+            app.root.current = 'word_list'
+            self.state = 'down'
+    NavBarButton:
+        text: 'Tags'
+        on_press: 
+            app.root.current = 'tag_management'
+            self.state = 'down'
+    NavBarButton:
+        text: 'Settings'
+        on_press: 
+            app.root.current = 'settings'
+            self.state = 'down'

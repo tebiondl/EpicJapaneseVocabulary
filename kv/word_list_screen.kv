@@ -1,0 +1,47 @@
+<WordListScreen>:
+    canvas.before:
+        Color:
+            rgba: background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+        Label:
+            text: 'Japanese Vocabulary'
+            font_size: '28sp'
+            size_hint_y: None
+            height: '50dp'
+            color: accent_color
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '50dp'
+            spacing: '10dp'
+            CustomTextInput:
+                id: search_input
+                hint_text: 'Search words...'
+                on_text: root.search_word(self.text)
+            CustomButton:
+                text: 'Search'
+                size_hint_x: None
+                width: '100dp'
+                on_press: root.search_word(search_input.text)
+        RecycleView:
+            id: rv_list
+            viewclass: 'CustomButtonList'
+            RecycleBoxLayout:
+                default_size: None, dp(60)
+                default_size_hint: 1, None
+                size_hint_y: None
+                height: self.minimum_height
+                orientation: 'vertical'
+                spacing: '10dp'
+        CustomButton:
+            text: '+ Add New Word'
+            size_hint_y: None
+            height: '50dp'
+            on_press: app.root.current = 'add_word'
+        NavBar:

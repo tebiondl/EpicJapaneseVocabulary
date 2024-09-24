@@ -1,0 +1,30 @@
+<SettingsScreen>:
+    canvas.before:
+        Color:
+            rgba: background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+        ScrollView:
+            BoxLayout:
+                orientation: 'vertical'
+                spacing: '20dp'
+                size_hint_y: None
+                height: self.minimum_height
+                Label:
+                    text: 'Settings'
+                    font_size: '28sp'
+                    size_hint_y: None
+                    height: '50dp'
+                    color: accent_color
+                CustomButton:
+                    text: 'Data Options'
+                    on_press: root.show_data_options()
+                CustomButton:
+                    text: 'App Options'
+                    on_press: root.show_app_options()
+        NavBar:

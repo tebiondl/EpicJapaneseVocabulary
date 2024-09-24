@@ -1,0 +1,66 @@
+<WordDetailsScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '10dp'
+        padding: '10dp'
+
+        ScrollView:
+            BoxLayout:
+                orientation: 'vertical'
+                spacing: '10dp'
+                size_hint_y: None
+                height: self.minimum_height
+
+                Label:
+                    text: 'Word Details'
+                    font_size: '28sp'
+                    size_hint_y: None
+                    height: '50dp'
+                    color: accent_color
+
+                CustomTextInput:
+                    id: input_word
+                    hint_text: 'Word'
+                    input_filter: None  # Ensure no input filter is applied
+
+                CustomTextInput:
+                    id: input_romaji
+                    hint_text: 'Romaji'
+                    input_filter: None  # Ensure no input filter is applied
+
+                CustomTextInputJapanese:
+                    id: input_hiragana_katakana
+                    hint_text: 'Hiragana/Katakana'
+                    input_filter: None  # Ensure no input filter is applied
+
+                CustomTextInputJapanese:
+                    id: input_kanji
+                    hint_text: 'Kanji'
+                    input_filter: None  # Ensure no input filter is applied
+
+                CustomButton:
+                    text: 'Manage Tags'
+                    on_press: root.show_tag_popup()
+
+                CustomButton:
+                    text: 'Mark as Learned'
+                    on_press: root.toggle_learned()
+                    background_color: utils.get_color_from_hex('#27ae60') if root.is_learned else accent_color
+
+                BoxLayout:
+                    spacing: '20dp'
+                    size_hint_y: None
+                    height: '50dp'
+                    CustomButton:
+                        text: 'Save Changes'
+                        on_press: root.save_changes()
+                    CustomButton:
+                        text: 'Delete'
+                        background_color: utils.get_color_from_hex('#c0392b')
+                        on_press: root.delete_word()
+                    CustomButton:
+                        text: 'Back'
+                        on_press: app.root.current = 'word_list'
+
+# Include the TagSelectionPopup from tag_selection_popup.kv
+#:include kv/tag_selection_popup.kv
