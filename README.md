@@ -51,25 +51,15 @@ This guide will walk you through the process of building the Japanese Vocabulary
    ```
    japanese_vocabulary_app/
    ├── main.py
-   ├── word_list_screen.py
-   ├── add_word_screen.py
-   ├── word_info_screen.py
-   ├── settings_screen.py
-   ├── tag_management_screen.py
    ├── utilities.py
+   ├── screens/
+   │    └── all python files
    ├── kv/
-   │   ├── common.kv
-   │   ├── word_list_screen.kv
-   │   ├── add_word_screen.kv
-   │   ├── word_details_screen.kv
-   │   ├── settings_screen.kv
-   │   ├── tag_management_screen.kv
-   │   └── tag_selection_popup.kv
-   ├── fonts/
-   │   └── static/
-   │       └── NotoSansJP-Medium.ttf
-   ├── words.json
-   └── tags.json
+   │    └── all kv files
+   └── fonts/
+       └── static/
+           └── All needed fonts
+
    ```
 
 5. **Run the app:**

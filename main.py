@@ -1,10 +1,10 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
-from word_list_screen import WordListScreen
-from add_word_screen import AddWordScreen
-from word_info_screen import WordDetailsScreen
-from settings_screen import SettingsScreen  # Add this import
-from tag_management_screen import TagManagementScreen
+from screens.word_list_screen import WordListScreen
+from screens.add_word_screen import AddWordScreen
+from screens.word_info_screen import WordDetailsScreen
+from screens.settings_screen import SettingsScreen  # Add this import
+from screens.tag_management_screen import TagManagementScreen
 import os
 from kivy.lang import Builder
 
