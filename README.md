@@ -1,8 +1,8 @@
+# Aim of the project
+
 This project aims to create an app that works as a dictionary for Japanese Words. I am currently studing this language and I wanted to have an app that tracks the words I learn.
 
 The .apk files of the app will be published in the releases page eventually. But if you want to try it now, you can build it yourself using the steps below.
-
-## How to build the app
 
 # Building the Japanese Vocabulary App Manually
 
@@ -104,8 +104,6 @@ To build the app for Android, you'll need to use Buildozer. Here are the steps:
 - For production releases, you may want to sign your APK. Refer to the Buildozer documentation for instructions on creating a signed APK.
 
 By following these steps, you should be able to build and run the Japanese Vocabulary app manually on your local machine and create an Android APK for testing or distribution.
-
-## How to build the app
 
 
 
