@@ -22,12 +22,10 @@ class WordDetailsScreen(Screen):
                 break
 
     def show_tag_popup(self):
-        popup = TagSelectionPopup(word=self.current_word)
+        popup = WordDetailsTagSelectionPopup(word=self.current_word)
         popup.open()
 
-    def toggle_tag(self, tag_id, active):
-        if 'tags' not in self.current_word:
-            self.current_word['tags'] = []
+    def toggle_tag(self, tag_id, active):        
         if active and tag_id not in self.current_word['tags']:
             self.current_word['tags'].append(tag_id)
         elif not active and tag_id in self.current_word['tags']:
@@ -66,7 +64,7 @@ class WordDetailsScreen(Screen):
         self.is_learned = not self.is_learned
         self.save_changes()
 
-class TagSelectionPopup(Popup):
+class WordDetailsTagSelectionPopup(Popup):
     def __init__(self, word, **kwargs):
         super().__init__(**kwargs)
         self.word = word
@@ -90,6 +88,3 @@ class TagSelectionPopup(Popup):
 
     def apply_tags(self):
         self.dismiss()
-        # The tags are already updated in the current_word object of WordDetailsScreen
-        # You might want to call save_changes() here if you want to save immediately
-        # self.parent.save_changes()

@@ -9,12 +9,17 @@ class AddWordScreen(Screen):
         self.selected_tags = []
 
     def show_tag_popup(self):
-        popup = TagSelectionPopup(word={'tags': self.selected_tags})
-        popup.bind(on_dismiss=self.update_selected_tags)
+        popup = AddWordTagSelectionPopup(word={'tags': self.selected_tags})
         popup.open()
 
     def update_selected_tags(self, instance):
         self.selected_tags = instance.word['tags']
+
+    def toggle_tag(self, tag_id, active):
+        if active and tag_id not in self.selected_tags:
+            self.selected_tags.append(tag_id)
+        elif not active and tag_id in self.selected_tags:
+            self.selected_tags.remove(tag_id)
 
     def save_word(self):
         word = self.ids.input_word.text
@@ -43,8 +48,8 @@ class AddWordScreen(Screen):
         self.ids.input_hiragana_katakana.text = ''
         self.ids.input_kanji.text = ''
         self.selected_tags = []
-
-class TagSelectionPopup(Popup):
+        
+class AddWordTagSelectionPopup(Popup):
     def __init__(self, word, **kwargs):
         super().__init__(**kwargs)
         self.word = word
@@ -53,7 +58,7 @@ class TagSelectionPopup(Popup):
     def load_tags(self):
         tags = load_tags()
         self.ids.rv_tags.data = [
-            {'tag_id': tag_id, 'text': tag_info['name'], 'active': tag_id in self.word['tags']}
+            {'tag_id': tag_id, 'text': tag_info['name'], 'active': tag_id in self.word.get('tags', [])}
             for tag_id, tag_info in tags.items()
         ]
 
@@ -62,15 +67,9 @@ class TagSelectionPopup(Popup):
         filtered_tags = {tag_id: tag_info for tag_id, tag_info in tags.items() 
                          if query.lower() in tag_info['name'].lower()}
         self.ids.rv_tags.data = [
-            {'tag_id': tag_id, 'text': tag_info['name'], 'active': tag_id in self.word['tags']}
+            {'tag_id': tag_id, 'text': tag_info['name'], 'active': tag_id in self.word.get('tags', [])}
             for tag_id, tag_info in filtered_tags.items()
         ]
-
-    def toggle_tag(self, tag_id, active):
-        if active and tag_id not in self.word['tags']:
-            self.word['tags'].append(tag_id)
-        elif not active and tag_id in self.word['tags']:
-            self.word['tags'].remove(tag_id)
 
     def apply_tags(self):
         self.dismiss()

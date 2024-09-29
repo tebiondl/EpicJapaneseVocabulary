@@ -24,6 +24,9 @@ Builder.load_file('kv/word_details_screen.kv')
 Builder.load_file('kv/settings_screen.kv')
 Builder.load_file('kv/tag_management_screen.kv')
 
+Builder.load_file('kv/add_word_tag_popup.kv')
+Builder.load_file('kv/word_details_tag_popup.kv')
+
 class MainApp(App):
     def build(self):
         # Check if running on Android and request permissions

@@ -1,0 +1,60 @@
+<WordDetailsTagSelectionPopup>:
+    title: 'Select Tags'
+    size_hint: 0.9, 0.9
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '10dp'
+        padding: '10dp'
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '50dp'
+            spacing: '10dp'
+
+            CustomTextInput:
+                id: search_input
+                hint_text: 'Search tags...'
+                on_text: root.search_tags(self.text)
+                size_hint_x: 0.7
+
+            CustomButton:
+                text: 'Search'
+                size_hint_x: 0.3
+                on_press: root.search_tags(search_input.text)
+
+        RecycleView:
+            id: rv_tags
+            viewclass: 'WordDetailsTagCheckBox'
+            RecycleBoxLayout:
+                default_size: None, dp(56)
+                default_size_hint: 1, None
+                size_hint_y: None
+                height: self.minimum_height
+                orientation: 'vertical'
+                spacing: dp(10)
+
+        CustomButton:
+            text: 'Apply'
+            on_press: root.apply_tags()
+            size_hint_y: None
+            height: '50dp'
+
+<WordDetailsTagCheckBox@BoxLayout>:
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: '50dp'
+    spacing: '10dp'
+    tag_id: ''
+    text: ''
+    active: False
+
+    CheckBox:
+        active: root.active
+        size_hint_x: 0.2
+        on_active: app.root.get_screen('word_details').toggle_tag(root.tag_id, self.active)
+
+    Label:
+        text: root.text
+        size_hint_x: 0.8
+        font_name: 'fonts/static/NotoSansJP-Medium.ttf'  # Supports Japanese
