@@ -6,6 +6,7 @@ from kivy.uix.button import Button
 from plyer import filechooser
 import json
 import os
+from kivy.utils import platform
 
 class SettingsScreen(Screen):
     def show_data_options(self):
@@ -22,14 +23,20 @@ class DataSettingsScreen(Screen):
         # Go up one level from the 'screens' directory to reach the main app directory
         return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+    def get_android_base_dir(self):
+        if platform == 'android':
+            return '/storage/emulated/0/'
+        else:
+            # Fallback for non-Android platforms
+            return os.path.expanduser('~')
+
     def create_backup(self):
-        app_dir = self.get_app_dir()
-        default_path = os.path.join(app_dir, 'backup.epic')
+        base_dir = self.get_android_base_dir()
         original_dir = os.getcwd()
         try:
             filechooser.save_file(on_selection=self.save_backup, 
                                   filters=['*.epic'],
-                                  path=default_path)
+                                  path=base_dir)
         finally:
             os.chdir(original_dir)
 
@@ -66,12 +73,12 @@ class DataSettingsScreen(Screen):
             os.chdir(app_dir)  # Always return to the main app directory
 
     def restore_backup(self):
-        app_dir = self.get_app_dir()
+        base_dir = self.get_android_base_dir()
         original_dir = os.getcwd()
         try:
             filechooser.open_file(on_selection=self.show_restore_options, 
                                   filters=['*.epic'],
-                                  path=app_dir)
+                                  path=base_dir)
         finally:
             os.chdir(original_dir)
 
