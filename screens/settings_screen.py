@@ -6,7 +6,6 @@ from kivy.uix.button import Button
 from plyer import filechooser
 import json
 import os
-from datetime import datetime
 
 class SettingsScreen(Screen):
     def show_data_options(self):
@@ -35,23 +34,29 @@ class DataSettingsScreen(Screen):
             os.chdir(original_dir)
 
     def save_backup(self, path):
-        if not path:
-            return
-        
-        original_dir = os.getcwd()
+        print(path)
         app_dir = self.get_app_dir()
-        
-        try:
+        if not path:
+            print(app_dir)
+            default_backup_file = os.path.join(app_dir, 'auto_backup/auto_backup.epic')
+            backup_file = default_backup_file
+        else:
             backup_file = path[0]
             if not backup_file.endswith('.epic'):
                 backup_file += '.epic'
-            
+        
+        original_dir = os.getcwd()
+        
+        try:
             data = {}
             for file in ['tags.json', 'words.json']:
                 file_path = os.path.join(app_dir, file)
                 if os.path.exists(file_path):
                     with open(file_path, 'r') as f:
                         data[file] = json.load(f)
+            
+            # Ensure the directory exists
+            os.makedirs(os.path.dirname(backup_file), exist_ok=True)
             
             with open(backup_file, 'w') as f:
                 json.dump(data, f)

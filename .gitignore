@@ -3,3 +3,4 @@ bin
 tags.json
 words.json
 __pycache__
+auto_backup
