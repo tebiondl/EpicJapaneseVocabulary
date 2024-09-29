@@ -2,8 +2,8 @@ import json
 import os
 import uuid
 
-DATA_FILE = 'words.json'
-TAGS_FILE = 'tags.json'
+DATA_FILE = 'saved_info/words.json'
+TAGS_FILE = 'saved_info/tags.json'
 
 # Function to load words from the JSON file
 def load_words():

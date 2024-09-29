@@ -3,7 +3,7 @@ from kivy.uix.screenmanager import ScreenManager
 from screens.word_list_screen import WordListScreen
 from screens.add_word_screen import AddWordScreen
 from screens.word_info_screen import WordDetailsScreen
-from screens.settings_screen import SettingsScreen  # Add this import
+from screens.settings_screen import SettingsScreen, DataSettingsScreen  # Add this import
 from screens.tag_management_screen import TagManagementScreen
 import os
 from kivy.lang import Builder
@@ -51,6 +51,10 @@ class MainApp(App):
         # Settings screen
         settings_screen = SettingsScreen(name='settings')
         sm.add_widget(settings_screen)
+
+        # Data settings screen
+        data_settings_screen = DataSettingsScreen(name='data_settings')
+        sm.add_widget(data_settings_screen)
 
         # Tag management screen
         tag_management_screen = TagManagementScreen(name='tag_management')

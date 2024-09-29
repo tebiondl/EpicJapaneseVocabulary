@@ -28,3 +28,39 @@
                     text: 'App Options'
                     on_press: root.show_app_options()
         NavBar:
+
+<DataSettingsScreen>:
+    canvas.before:
+        Color:
+            rgba: background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: '20dp'
+        padding: '20dp'
+        BoxLayout:
+            size_hint_y: None
+            height: '50dp'
+            Button:
+                text: '<'
+                size_hint_x: None
+                width: '50dp'
+                on_press: root.manager.current = 'settings'
+            Label:
+                text: 'Data Settings'
+                font_size: '24sp'
+                color: accent_color
+        ScrollView:
+            BoxLayout:
+                orientation: 'vertical'
+                spacing: '20dp'
+                size_hint_y: None
+                height: self.minimum_height
+                CustomButton:
+                    text: 'Create Backup'
+                    on_press: root.create_backup()
+                CustomButton:
+                    text: 'Restore Backup'
+                    on_press: root.restore_backup()
