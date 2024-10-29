@@ -3,8 +3,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
-from plyer import filechooser
-from kivy.uix.filechooser import FileChooserIconView
+import plyer
 import json
 import os
 from kivy.utils import platform
@@ -36,6 +35,7 @@ class DataSettingsScreen(Screen):
     def create_backup(self):
         base_dir = self.get_android_base_dir()
         new_dir = os.path.join(base_dir, "JapaneseVocabulary", "backups")
+        original_dir = os.getcwd()
         
         if not self.has_manage_storage_permission():
             self.request_manage_storage_permission()
@@ -50,6 +50,8 @@ class DataSettingsScreen(Screen):
                           content=Label(text=str("You have not given file permissions to the app"), font_size='8sp'),
                           size_hint=(0.8, 0.4))
             popup.open()
+        finally:
+            os.chdir(original_dir)
             
     def selected_folder(self, selection):
         if selection:
@@ -97,17 +99,28 @@ class DataSettingsScreen(Screen):
             os.chdir(path)  # Always return to the main app directory
 
     def restore_backup(self):
-        base_dir = self.get_android_base_dir()
+        usual_backup_folder = self.get_android_base_dir()
+        
+        if os.path.exists(os.path.join(usual_backup_folder, "JapaneseVocabulary","backups")):
+            #Use this folder as base
+            usual_backup_folder = os.path.join(usual_backup_folder, "JapaneseVocabulary","backups")
+
         original_dir = os.getcwd()
+        
+        if not self.has_manage_storage_permission():
+            self.request_manage_storage_permission()
+            return
+        
         try:
-            filechooser.open_file(on_selection=self.show_restore_options, 
+            plyer.filechooser.open_file(on_selection=self.show_restore_options, 
                                   filters=['*.epic'],
-                                  path=base_dir)
+                                  path=usual_backup_folder)
         finally:
             os.chdir(original_dir)
 
     def show_restore_options(self, selection):
         if not selection:
+            self.show_message("File not obtained")
             return
         
         backup_file = selection[0]
@@ -126,14 +139,7 @@ class DataSettingsScreen(Screen):
         self.restore_popup.open()
 
     def perform_restore(self, backup_file, merge=False):
-        print(f"Starting restore process. Current directory: {os.getcwd()}")
-        print(f"Backup file: {backup_file}")
-        
-        original_dir = os.getcwd()
         app_dir = self.get_app_dir()
-        
-        print(f"Original directory: {original_dir}")
-        print(f"App directory: {app_dir}")
         
         try:
             if os.path.exists(backup_file):
