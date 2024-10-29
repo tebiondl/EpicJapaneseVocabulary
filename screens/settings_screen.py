@@ -4,9 +4,13 @@ from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from plyer import filechooser
+from kivy.uix.filechooser import FileChooserIconView
 import json
 import os
 from kivy.utils import platform
+from datetime import datetime
+from android.storage import primary_external_storage_path
+from jnius import autoclass
 
 class SettingsScreen(Screen):
     def show_data_options(self):
@@ -24,40 +28,58 @@ class DataSettingsScreen(Screen):
         return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     def get_android_base_dir(self):
-        if platform == 'android':
-            return '/storage/emulated/0/'
+        if platform == 'android':     
+            return primary_external_storage_path()
         else:
-            # Fallback for non-Android platforms
             return os.path.expanduser('~')
 
     def create_backup(self):
         base_dir = self.get_android_base_dir()
-        original_dir = os.getcwd()
+        new_dir = os.path.join(base_dir, "JapaneseVocabulary", "backups")
+        
+        if not self.has_manage_storage_permission():
+            self.request_manage_storage_permission()
+            return
+        
         try:
-            filechooser.save_file(on_selection=self.save_backup, 
-                                  filters=['*.epic'],
-                                  path=base_dir)
-        finally:
-            os.chdir(original_dir)
+            # Create a folder called JapaneseVocabulary on the base path
+            os.makedirs(new_dir, exist_ok=True)
+            self.save_backup(new_dir)
+        except Exception as e:
+            popup = Popup(title="Error",
+                          content=Label(text=str("You have not given file permissions to the app"), font_size='8sp'),
+                          size_hint=(0.8, 0.4))
+            popup.open()
+            
+    def selected_folder(self, selection):
+        if selection:
+            folder_path = selection[0]
+            print(f"Carpeta seleccionada: {folder_path}")
+            self.save_backup(folder_path)
+        else:
+            popup = Popup(title="Error",
+                          content=Label(text="No folder has been selected"),
+                          size_hint=(0.8, 0.4))
+            popup.open()
 
     def save_backup(self, path):
-        print(path)
-        app_dir = self.get_app_dir()
+        backup_folder = os.path.join(path, 'auto_backup')
+        date = datetime.now()
+        date = date.strftime("%d-%m-%Y")
+
         if not path:
-            print(app_dir)
-            default_backup_file = os.path.join(app_dir, 'auto_backup/auto_backup.epic')
+            default_backup_file = os.path.join(path, 'auto_backup/auto_backup_' + date + '.epic')
+            os.makedirs(backup_folder, exist_ok=True)
             backup_file = default_backup_file
         else:
-            backup_file = path[0]
-            if not backup_file.endswith('.epic'):
-                backup_file += '.epic'
+            backup_file = path + "/backup_" + date + '.epic'
         
-        original_dir = os.getcwd()
+        this_path = os.path.dirname(os.path.abspath(__file__))
         
         try:
             data = {}
-            for file in ['tags.json', 'words.json']:
-                file_path = os.path.join(app_dir, file)
+            for file in [this_path + '/../tags.json', this_path + '/../words.json']:
+                file_path = os.path.join(path, file)
                 if os.path.exists(file_path):
                     with open(file_path, 'r') as f:
                         data[file] = json.load(f)
@@ -68,9 +90,11 @@ class DataSettingsScreen(Screen):
             with open(backup_file, 'w') as f:
                 json.dump(data, f)
             
-            self.show_message(f"Backup created: {backup_file}")
+            self.show_message(f"Backup created in:\n{backup_file}")
+        except Exception as e:
+            print(f"Error al cargar los archivos: {e}")
         finally:
-            os.chdir(app_dir)  # Always return to the main app directory
+            os.chdir(path)  # Always return to the main app directory
 
     def restore_backup(self):
         base_dir = self.get_android_base_dir()
@@ -152,3 +176,20 @@ class DataSettingsScreen(Screen):
     def show_message(self, message):
         popup = Popup(title='Message', content=Label(text=message), size_hint=(0.8, 0.4))
         popup.open()
+        
+    def has_manage_storage_permission(self):
+        # En Android 11+, verifica si tenemos MANAGE_EXTERNAL_STORAGE
+        Environment = autoclass('android.os.Environment')
+        return Environment.isExternalStorageManager()
+        
+    def request_manage_storage_permission(self):
+        # Redirige al usuario a la configuración de permisos de la aplicación
+        Intent = autoclass('android.content.Intent')
+        Uri = autoclass('android.net.Uri')
+        Settings = autoclass('android.provider.Settings')
+        
+        intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+        uri = Uri.fromParts("package", autoclass("org.kivy.android.PythonActivity").mActivity.getPackageName(), None)
+        intent.setData(uri)
+        autoclass("org.kivy.android.PythonActivity").mActivity.startActivity(intent)
+        print("Redirigiendo a configuración de permisos para MANAGE_EXTERNAL_STORAGE")
