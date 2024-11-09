@@ -3,13 +3,14 @@ from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
-import plyer
+from . import my_file_explorer
 import json
 import os
 from kivy.utils import platform
 from datetime import datetime
-from android.storage import primary_external_storage_path
-from jnius import autoclass
+if platform == 'android': 
+    from android.storage import primary_external_storage_path
+    from jnius import autoclass
 
 class SettingsScreen(Screen):
     def show_data_options(self):
@@ -37,19 +38,17 @@ class DataSettingsScreen(Screen):
         new_dir = os.path.join(base_dir, "JapaneseVocabulary", "backups")
         original_dir = os.getcwd()
         
-        if not self.has_manage_storage_permission():
-            self.request_manage_storage_permission()
-            return
+        if platform == "android":
+            if not self.has_manage_storage_permission():
+                self.request_manage_storage_permission()
+                return
         
         try:
             # Create a folder called JapaneseVocabulary on the base path
             os.makedirs(new_dir, exist_ok=True)
             self.save_backup(new_dir)
         except Exception as e:
-            popup = Popup(title="Error",
-                          content=Label(text=str("You have not given file permissions to the app"), font_size='8sp'),
-                          size_hint=(0.8, 0.4))
-            popup.open()
+            self.show_message("You have not given file permissions to the app")
         finally:
             os.chdir(original_dir)
             
@@ -67,7 +66,7 @@ class DataSettingsScreen(Screen):
     def save_backup(self, path):
         backup_folder = os.path.join(path, 'auto_backup')
         date = datetime.now()
-        date = date.strftime("%d-%m-%Y")
+        date = date.strftime("%d-%m-%Y-%H-%M-%S")
 
         if not path:
             default_backup_file = os.path.join(path, 'auto_backup/auto_backup_' + date + '.epic')
@@ -107,36 +106,43 @@ class DataSettingsScreen(Screen):
 
         original_dir = os.getcwd()
         
-        if not self.has_manage_storage_permission():
-            self.request_manage_storage_permission()
-            return
-        
+        if platform == "android":
+            if not self.has_manage_storage_permission():
+                self.request_manage_storage_permission()
+                return
+            
         try:
-            plyer.filechooser.open_file(on_selection=self.show_restore_options, 
-                                  filters=['*.epic'],
-                                  path=usual_backup_folder)
+            content = my_file_explorer.MyFileExplorer(usual_backup_folder, on_file_selected=self.show_restore_options)
+            self.file_explorer_popup = Popup(title="Select Backup File", content=content, size_hint=(0.9, 0.9))
+            self.file_explorer_popup.bind(on_open=lambda *args: content.create_file_view())
+            self.file_explorer_popup.open()
         finally:
             os.chdir(original_dir)
 
     def show_restore_options(self, selection):
+        
         if not selection:
             self.show_message("File not obtained")
             return
         
-        backup_file = selection[0]
-        content = BoxLayout(orientation='vertical')
-        content.add_widget(Label(text='How do you want to restore the backup?'))
-        merge_btn = Button(text='Merge with current data')
-        replace_btn = Button(text='Replace current data')
-        
-        merge_btn.bind(on_press=lambda x: self.perform_restore(backup_file, merge=True))
-        replace_btn.bind(on_press=lambda x: self.perform_restore(backup_file, merge=False))
-        
-        content.add_widget(merge_btn)
-        content.add_widget(replace_btn)
-        
-        self.restore_popup = Popup(title='Restore Options', content=content, size_hint=(0.8, 0.4))
-        self.restore_popup.open()
+        try :
+            backup_file = selection[0]
+            
+            content = BoxLayout(orientation='vertical')
+            content.add_widget(Label(text='How do you want to restore the backup?'))
+            merge_btn = Button(text='Merge with current data')
+            replace_btn = Button(text='Replace current data')
+            
+            merge_btn.bind(on_press=lambda x: self.perform_restore(backup_file, merge=True))
+            replace_btn.bind(on_press=lambda x: self.perform_restore(backup_file, merge=False))
+            
+            content.add_widget(merge_btn)
+            content.add_widget(replace_btn)
+            
+            self.restore_popup = Popup(title='Restore Options', content=content, size_hint=(0.8, 0.4))
+            self.restore_popup.open()
+        except Exception as e:
+            self.show_message(f"Error: {e}")
 
     def perform_restore(self, backup_file, merge=False):
         app_dir = self.get_app_dir()
@@ -157,14 +163,22 @@ class DataSettingsScreen(Screen):
                         print(f"Merging data for {file}")
                         with open(file_path, 'r') as f:
                             current_data = json.load(f)
-                        current_data.update(data)  # Merge data
-                        data = current_data
+
+                        # Asegúrate de que ambos current_data y data son listas
+                        if isinstance(current_data, list) and isinstance(data, list):
+                            # Crear un diccionario temporal para evitar duplicados por 'id'
+                            temp_data = {entry['id']: entry for entry in current_data}
+                            temp_data.update({entry['id']: entry for entry in data})
+                            data = list(temp_data.values())
+                        else:
+                            raise ValueError("Expected both current and new data to be lists for merging.")
                     
                     print(f"Writing data to {file_path}")
                     with open(file_path, 'w') as f:
                         json.dump(data, f)
                 
                 self.show_message("Backup restored successfully")
+                self.file_explorer_popup.dismiss()
             else:
                 print(f"Backup file not found: {backup_file}")
                 self.show_message("Backup file not found")
@@ -180,7 +194,16 @@ class DataSettingsScreen(Screen):
             self.restore_popup.dismiss()
 
     def show_message(self, message):
-        popup = Popup(title='Message', content=Label(text=message), size_hint=(0.8, 0.4))
+        print(message)
+        popup = Popup(title='Message', content=Label(
+            text=message, 
+            size_hint_y=None,
+            height=40,
+            text_size=(self.width * 0.95, None),
+            halign='left',
+            valign='middle',
+            padding=(10, 10)), 
+        size_hint=(0.8, 0.4),)
         popup.open()
         
     def has_manage_storage_permission(self):
